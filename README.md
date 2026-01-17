@@ -1,6 +1,6 @@
 # moss-langgraph
 
-MOSS signing integration for LangGraph nodes.
+MOSS signing integration for LangGraph nodes. **Unsigned output is broken output.**
 
 ## Installation
 
@@ -23,20 +23,30 @@ graph = StateGraph(dict)
 graph.add_node("step", signed_node(my_node, "moss:flow:step"))
 
 # After node executes, state["moss_envelope"] is populated
+# envelope.signature: ML-DSA-44 post-quantum signature
+# envelope.timestamp: Signed timestamp
+# envelope.verify(): Returns VerifyResult
 ```
 
 ## Verification
 
 ```python
-from moss import Subject
+from moss import verify
 
 # After graph execution
 result = graph.invoke({"input": "data"})
 envelope = result["moss_envelope"]
 
-# Verify the node's output
-verify_result = Subject.verify(envelope)
-assert verify_result.valid
+# Verify the node's output - no network required
+verify_result = verify(envelope)
+
+if verify_result.valid:
+    print(f"Signed by: {verify_result.subject}")
+else:
+    print(f"Invalid: {verify_result.reason}")
+
+# Or use envelope.verify() directly
+assert envelope.verify().valid
 ```
 
 ## Factory for Multiple Nodes

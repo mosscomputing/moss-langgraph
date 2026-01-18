@@ -2,6 +2,8 @@
 
 MOSS signing integration for LangGraph nodes. **Unsigned output is broken output.**
 
+[![PyPI](https://img.shields.io/pypi/v/moss-langgraph)](https://pypi.org/project/moss-langgraph/)
+
 ## Installation
 
 ```bash
@@ -49,6 +51,19 @@ else:
 assert envelope.verify().valid
 ```
 
+## Execution Record
+
+Each signed node produces a verifiable execution record:
+
+```
+agent_id:      moss:flow:step
+timestamp:     2026-01-18T12:34:56Z
+sequence:      1
+payload_hash:  SHA-256:abc123...
+signature:     ML-DSA-44:xyz789...
+status:        VERIFIED
+```
+
 ## Factory for Multiple Nodes
 
 ```python
@@ -69,3 +84,19 @@ graph.add_node("research", signed_node(research_fn, "moss:flow:research"))
 graph.add_node("analyze", signed_node(analyze_fn, "moss:flow:analyze"))
 graph.add_node("summarize", signed_node(summarize_fn, "moss:flow:summarize"))
 ```
+
+## Evidence Retention
+
+Free tier provides runtime enforcement only. Production environments require retained, verifiable execution records.
+
+See [mosscomputing.com](https://mosscomputing.com) for evidence continuity options.
+
+## Links
+
+- [moss-sdk](https://pypi.org/project/moss-sdk/) - Core MOSS SDK
+- [mosscomputing.com](https://mosscomputing.com) - Project site
+- [app.mosscomputing.com](https://app.mosscomputing.com) - Dashboard
+
+## License
+
+MIT

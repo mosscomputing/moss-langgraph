@@ -115,4 +115,4 @@ graph.add_node("step2", factory.wrap(step2_fn))
 
 ## License
 
-MIT
+Proprietary - See [LICENSE](LICENSE) for terms.

@@ -1,6 +1,10 @@
 # moss-langgraph
 
-MOSS signing integration for LangGraph. **Unsigned output is broken output.**
+MOSS integration for [LangGraph](https://langchain-ai.github.io/langgraph/) - cryptographic signing for stateful AI workflows.
+
+**Unsigned agent output is broken output.**
+
+All signatures use **ML-DSA-44** (NIST FIPS 204), the post-quantum cryptographic standard.
 
 [![PyPI](https://img.shields.io/pypi/v/moss-langgraph)](https://pypi.org/project/moss-langgraph/)
 
@@ -123,10 +127,20 @@ All new signups get a **14-day free trial** of Pro.
 | SIEM integration | - | ✓ | ✓ |
 | Compliance exports | - | ✓ | ✓ |
 
+## Why Sign LangGraph Actions?
+
+1. **Compliance** - Prove to auditors exactly what your AI did
+2. **Accountability** - Cryptographic proof of every node execution
+3. **State Integrity** - Sign checkpoints and state transitions
+4. **Debugging** - Trace complex graph workflows
+5. **Future-Proof** - ML-DSA-44 post-quantum signatures
+
 ## Links
 
-- [moss-sdk](https://pypi.org/project/moss-sdk/) - Core MOSS SDK
 - [mosscomputing.com](https://mosscomputing.com) - Project site
+- [app.mosscomputing.com](https://app.mosscomputing.com) - Developer Console
+- [moss-sdk](https://pypi.org/project/moss-sdk/) - Core MOSS SDK
+- [LangGraph](https://langchain-ai.github.io/langgraph/) - LangGraph framework
 
 ## License
 

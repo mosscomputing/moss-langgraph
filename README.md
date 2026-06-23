@@ -1,12 +1,13 @@
 # moss-langgraph
 
-MOSS integration for [LangGraph](https://langchain-ai.github.io/langgraph/) - cryptographic signing for stateful AI workflows.
-
-**Unsigned agent output is broken output.**
-
-All signatures use **ML-DSA-44** (NIST FIPS 204), the post-quantum cryptographic standard.
+Cryptographic signing for LangGraph stateful AI workflows using ML-DSA-44 post-quantum signatures.
 
 [![PyPI](https://img.shields.io/pypi/v/moss-langgraph)](https://pypi.org/project/moss-langgraph/)
+[![License](https://img.shields.io/badge/license-BSL--1.1-blue)](LICENSE)
+
+## Overview
+
+moss-langgraph integrates MOSS cryptographic signing into your LangGraph workflows. Every node output, checkpoint, and state transition gets a tamper-evident signature using ML-DSA-44 (NIST FIPS 204), the post-quantum cryptographic standard. This creates an immutable audit trail for compliance, debugging, and stateful workflow accountability.
 
 ## Installation
 
@@ -14,9 +15,7 @@ All signatures use **ML-DSA-44** (NIST FIPS 204), the post-quantum cryptographic
 pip install moss-langgraph
 ```
 
-## Quick Start: Explicit Signing (Recommended)
-
-Sign node outputs, checkpoints, and state transitions:
+## Quick Start
 
 ```python
 from moss_langgraph import sign_node_output, sign_checkpoint, sign_state_transition
@@ -29,6 +28,31 @@ print(f"Signed: {result.signature[:20]}...")
 # Sign a checkpoint
 checkpoint = {"thread_id": "t1", "values": state}
 result = sign_checkpoint(checkpoint, agent_id="my-graph", checkpoint_id="cp_1")
+```
+
+## Features
+
+- **ML-DSA-44 signatures** - Post-quantum cryptographic standard (NIST FIPS 204)
+- **Node output signing** - Sign every node's output state
+- **Checkpoint signing** - Sign LangGraph checkpoints for state integrity
+- **State transition signing** - Sign transitions between nodes
+- **Policy enforcement** - Block high-risk actions with enterprise policies
+- **Graph tracing** - Debug complex workflows with signed audit trail
+- **Offline verification** - Verify signatures without network access
+
+## Usage Examples
+
+### Basic Usage
+
+```python
+from moss_langgraph import sign_node_output, sign_state_transition, verify_envelope
+
+# Sign a node output
+result = sign_node_output(
+    {"action": "processed", "data": [1, 2, 3]},
+    agent_id="my-graph",
+    node="processor"
+)
 
 # Sign a state transition
 result = sign_state_transition(
@@ -38,19 +62,19 @@ result = sign_state_transition(
     from_node="step1",
     to_node="step2"
 )
+
+# Verify any envelope
+verify_result = verify_envelope(result.envelope)
+print(f"Valid: {verify_result.valid}, Subject: {verify_result.subject}")
 ```
 
-## Enterprise Mode
-
-Set `MOSS_API_KEY` for automatic policy evaluation:
+### With Policy Enforcement
 
 ```python
 import os
 os.environ["MOSS_API_KEY"] = "your-api-key"
 
-from moss_langgraph import sign_node_output, enterprise_enabled
-
-print(f"Enterprise: {enterprise_enabled()}")  # True
+from moss_langgraph import sign_node_output
 
 result = sign_node_output(
     {"action": "high_value_trade"},
@@ -63,17 +87,7 @@ if result.blocked:
     print(f"Blocked by policy: {result.policy.reason}")
 ```
 
-## Verification
-
-```python
-from moss_langgraph import verify_envelope
-
-verify_result = verify_envelope(result.envelope)
-if verify_result.valid:
-    print(f"Signed by: {verify_result.subject}")
-```
-
-## All Functions
+## API Reference
 
 | Function | Description |
 |----------|-------------|
@@ -84,69 +98,21 @@ if verify_result.valid:
 | `sign_state_transition()` | Sign a state transition |
 | `sign_state_transition_async()` | Async version |
 | `verify_envelope()` | Verify a signed envelope |
+| `enterprise_enabled()` | Check if enterprise mode is active |
 
-## Legacy API: Auto-Signing Decorator
+## Configuration
 
-The old decorator API is still available:
-
-```python
-from langgraph.graph import StateGraph
-from moss_langgraph import signed_node, SignedNodeFactory
-
-# Wrap individual nodes
-graph.add_node("step", signed_node(my_node, "moss:flow:step"))
-
-# Or use factory for multiple nodes
-factory = SignedNodeFactory("moss:flow:pipeline")
-graph.add_node("step1", factory.wrap(step1_fn))
-graph.add_node("step2", factory.wrap(step2_fn))
-```
-
-## Pricing Tiers
-
-| Tier | Price | Agents | Signatures | Retention |
-|------|-------|--------|------------|-----------|
-| **Free** | $0 | 5 | 1,000/day | 7 days |
-| **Pro** | $1,499/mo | Unlimited | Unlimited | 1 year |
-| **Enterprise** | Custom | Unlimited | Unlimited | 7 years |
-
-*Annual billing: $1,249/mo (save $3,000/year)*
-
-All new signups get a **14-day free trial** of Pro.
-
-### Features by Tier
-
-| Feature | Free | Pro | Enterprise |
-|---------|------|-----|------------|
-| Local signing | ✓ | ✓ | ✓ |
-| Offline verification | ✓ | ✓ | ✓ |
-| Policy evaluation | - | ✓ | ✓ |
-| RBAC | - | ✓ | ✓ |
-| Evidence retention | 7 days | 1 year | 7 years |
-| Slack/Teams alerts | - | ✓ | ✓ + Buttons |
-| SIEM integration | - | ✓ | ✓ |
-| Compliance exports | - | ✓ | ✓ |
-
-## Why Sign LangGraph Actions?
-
-1. **Compliance** - Prove to auditors exactly what your AI did
-2. **Accountability** - Cryptographic proof of every node execution
-3. **State Integrity** - Sign checkpoints and state transitions
-4. **Debugging** - Trace complex graph workflows
-5. **Future-Proof** - ML-DSA-44 post-quantum signatures
+| Environment Variable | Description |
+|---------------------|-------------|
+| `MOSS_API_KEY` | API key for enterprise features (policy enforcement, SIEM) |
+| `MOSS_API_URL` | Custom API endpoint (default: api.mosscomputing.com) |
 
 ## Links
 
-- [mosscomputing.com](https://mosscomputing.com) - Project site
-- [app.mosscomputing.com](https://app.mosscomputing.com) - Developer Console
-- [moss-sdk](https://pypi.org/project/moss-sdk/) - Core MOSS SDK
-- [LangGraph](https://langchain-ai.github.io/langgraph/) - LangGraph framework
+- [Documentation](https://docs.mosscomputing.com/sdks/langgraph)
+- [Dashboard](https://app.mosscomputing.com)
+- [PyPI](https://pypi.org/project/moss-langgraph/)
 
 ## License
 
-This package is licensed under the [Business Source License 1.1](LICENSE).
-
-- Free for evaluation, testing, and development
-- Free for non-production use
-- Production use requires a [MOSS subscription](https://mosscomputing.com/pricing)
-- Converts to Apache 2.0 on January 25, 2030
+Business Source License 1.1 - Production use requires a [MOSS subscription](https://mosscomputing.com/pricing).
